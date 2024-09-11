@@ -1,10 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using Cinemachine;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.Windows;
+
 
 public class Movement : MonoBehaviour
 {
@@ -64,14 +59,11 @@ public class Movement : MonoBehaviour
     [SerializeField] private Transform cineMashineTransform;
 
 
-    CinemachineComposer myComposer;
     #endregion
 
     private CharacterController myController;
 
     private GetInput myInput;
-
-    private int test;
 
     private void Start()
     {
@@ -159,4 +151,17 @@ public class Movement : MonoBehaviour
         cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
         gameObject.transform.rotation = cineMashineTransform.transform.rotation;
     }
+
+
+
+    /* 
+     
+     - Rotaion von meinem Object Anpassen
+        - Gucken wies bei R6 bspw ist -> nur wichtig bei Multiplayer
+
+     - Meine Kamera muss sich beim Sprinten etwas bewegen / wackeln 
+
+     - Regeneration & Ausdauer ?
+     
+     */
 }
