@@ -59,11 +59,24 @@ public class Movement : MonoBehaviour
     [SerializeField] private Transform cineMashineTransform;
 
 
+    public float limitAngleX = 45;
+    public float limitAngleY = 180;
+
+    private float angleX;
+    private float angleY;
+
     #endregion
 
     private CharacterController myController;
 
     private GetInput myInput;
+
+
+    private Camera myCamera;
+    private void Awake()
+    {
+        myCamera = Camera.main;
+    }
 
     private void Start()
     {
@@ -126,7 +139,7 @@ public class Movement : MonoBehaviour
         // Create acceleration
         if (moveDirection.magnitude > 0)
         {
-           // currentSpeed += acceleration * Time.deltaTime;
+            // currentSpeed += acceleration * Time.deltaTime;
 
             currentSpeed += currentAcceleration * Time.deltaTime;
 
@@ -141,10 +154,23 @@ public class Movement : MonoBehaviour
         moveDirection = cineMashineTransform.forward * moveDirection.z + cineMashineTransform.right * moveDirection.x;
 
         myController.Move(moveDirection * (currentSpeed * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+
+        if (moveDirection != new Vector3(0, 0, 0) && myInput.isSprinting == true)
+        {
+            ShakeCamera();
+        }
+    }
+
+ 
+    private void ShakeCamera()
+    {
+        // wenn player geittet wird muss camera geshaked werden
+        // wenn player sprinten muss kamera leicht hoch und runter gehen
     }
 
     /// <summary>
     /// Noch unzufrieden ? irgendwie fehlt da das gewisse etwas, aber auch irgendwie nicht lol
+    /// Will hier aber erstmal gucken wie es ist, wenn meine Map steht 
     /// </summary>
     private void RotateCamera()
     {
@@ -152,11 +178,11 @@ public class Movement : MonoBehaviour
         gameObject.transform.rotation = cineMashineTransform.transform.rotation;
     }
 
-
+  
 
     /* 
      
-     - Rotaion von meinem Object Anpassen
+     - Rotaion von meinem Object Anpassen / -> Eig irrelevant sofern es Single Player ist 
         - Gucken wies bei R6 bspw ist -> nur wichtig bei Multiplayer
 
      - Meine Kamera muss sich beim Sprinten etwas bewegen / wackeln 
