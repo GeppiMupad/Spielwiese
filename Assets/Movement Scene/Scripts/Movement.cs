@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UnityEngine.UIElements;
 
 public class Movement : MonoBehaviour
 {
@@ -22,6 +22,15 @@ public class Movement : MonoBehaviour
     private float maxSpeed;
     private float currentAcceleration;
     private float currentSpeed = 0f;
+
+
+    private float currentDecceleration = 3f;
+    private float deccelerate;
+
+    private float tempDeccerlerate;
+
+
+    private Vector3 lastMove;
 
     #endregion
 
@@ -132,7 +141,6 @@ public class Movement : MonoBehaviour
             currentAcceleration = normalAcceleration;
         }
 
-
         // Get direction the player is walking
         Vector3 moveDirection = new Vector3(myInput.walk.x, 0.0f, myInput.walk.y).normalized;
 
@@ -140,9 +148,9 @@ public class Movement : MonoBehaviour
         if (moveDirection.magnitude > 0)
         {
             // currentSpeed += acceleration * Time.deltaTime;
-
+        
             currentSpeed += currentAcceleration * Time.deltaTime;
-
+        
             currentSpeed = Mathf.Min(currentSpeed, maxSpeed);
         }
         else  // no vector lenght, no speed
@@ -152,6 +160,31 @@ public class Movement : MonoBehaviour
 
         // move into direction the camera is looking at
         moveDirection = cineMashineTransform.forward * moveDirection.z + cineMashineTransform.right * moveDirection.x;
+
+        if(moveDirection != new Vector3(0,0,0))
+        {
+            deccelerate = currentSpeed;
+            lastMove = moveDirection;
+            lastMove = cineMashineTransform.forward * lastMove.z + cineMashineTransform.right * lastMove.x;
+        }
+
+        //if(myInput.walk == new Vector2(0,0))
+        //{
+        //    myController.Move(lastMove * (currentSpeed * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+        //}
+
+
+        // klappt noch nicht so ganz, die decceleration wird immer kleier und erschaffe so eine "negative" beschleunigung 
+
+        if(moveDirection == new Vector3(0,0,0))
+        {
+            deccelerate -= currentDecceleration * Time.deltaTime;
+
+            deccelerate = Mathf.Min(deccelerate, 10);
+
+            Debug.Log(deccelerate);
+            myController.Move(lastMove * (currentSpeed - deccelerate * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+        }
 
         myController.Move(moveDirection * (currentSpeed * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
 
@@ -174,14 +207,30 @@ public class Movement : MonoBehaviour
     /// </summary>
     private void RotateCamera()
     {
-        cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
-        gameObject.transform.rotation = cineMashineTransform.transform.rotation;
+
+        if(this.gameObject.transform.rotation.x > -50f || this.gameObject.transform.rotation.x < 50f)
+        {
+            cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
+            gameObject.transform.rotation = cineMashineTransform.transform.rotation;
+        }
+        else
+        {
+            cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
+            gameObject.transform.rotation = cineMashineTransform.transform.rotation;
+        }
+
+        // 50 x , - 50 x
+
+        // cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
+
     }
 
   
 
     /* 
      
+    - Muss noch machen, dass sobald man aufhört zu gehen man kruzen "bremsweg" hat 
+
      - Rotaion von meinem Object Anpassen / -> Eig irrelevant sofern es Single Player ist 
         - Gucken wies bei R6 bspw ist -> nur wichtig bei Multiplayer
 
