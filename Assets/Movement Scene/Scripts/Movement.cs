@@ -20,9 +20,11 @@ public class Movement : MonoBehaviour
     [Tooltip("Acceleration for Sprinting")]
     [SerializeField] private float sprintAcceleration;
 
-    [Tooltip("Decceleration after walking / sprinting -> slowing down player")]
-    [SerializeField] private float currentDecceleration; // 20f
+    [Tooltip("Decceleration if player sprints")]
+    [SerializeField] private float sprintDecceleration;
 
+    [Tooltip("Decceleration if player walks")]
+    [SerializeField] private float walkDecceleration;
 
     // Acceleration
 
@@ -34,7 +36,7 @@ public class Movement : MonoBehaviour
     // Slow Player Down
 
     private float deccelerate;
-    private Vector3 lastMove; 
+    private Vector3 lastDirection; 
 
     #endregion
 
@@ -131,6 +133,9 @@ public class Movement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Accelerate when starts moving, Deccelerate when stop moving , Change between Sprints and noraml walk
+    /// </summary>
     private void PlayerMovement()
     {
         // Set Speed, the player is walking with
@@ -164,25 +169,36 @@ public class Movement : MonoBehaviour
 
         // move into direction the camera is looking at
         moveDirection = cineMashineTransform.forward * moveDirection.z + cineMashineTransform.right * moveDirection.x;
-
+       
+            // save last direction for decceleration
         if (moveDirection != new Vector3(0, 0, 0))
         {
             deccelerate = currentSpeed;
-            lastMove = moveDirection;
-            lastMove = cineMashineTransform.forward * lastMove.z + cineMashineTransform.right * lastMove.x;
+            lastDirection = moveDirection;
+            //lastDirection = new Vector3(0 , moveDirection.x , moveDirection.z);
+            //lastMove = cineMashineTransform.forward * lastMove.z + cineMashineTransform.right * lastMove.x;
         }
-
 
         if (moveDirection == new Vector3(0, 0, 0))
         {
-            // slow player down over time, after no move input is given
-            deccelerate -= currentDecceleration * Time.deltaTime;
+            // slow player down over time, after no move input is given ( change deccleration based on speed )
+            if (maxSpeed == sprintSpeed)
+            {     
+                deccelerate -= sprintDecceleration * Time.deltaTime;
 
-            deccelerate = Mathf.Min(deccelerate, 10);
+                deccelerate = Mathf.Min(deccelerate, 10);
+
+            }
+            else
+            {
+                deccelerate -= walkDecceleration * Time.deltaTime;
+
+                deccelerate = Mathf.Min(deccelerate, 10);
+            }
 
             if (deccelerate > 0)
             {
-                myController.Move(lastMove * (currentSpeed - deccelerate * Time.deltaTime) * -1 + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+                myController.Move(lastDirection * (currentSpeed - deccelerate * Time.deltaTime) * -1 + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
             }
         }
 
@@ -190,6 +206,7 @@ public class Movement : MonoBehaviour
 
         if (moveDirection != new Vector3(0, 0, 0) && myInput.isSprinting == true)
         {
+            // The Arms of the player has to shake instead of the camera
             ShakeCamera();
         }
     }
@@ -222,7 +239,6 @@ public class Movement : MonoBehaviour
         // 50 x , - 50 x
 
         // cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
-
     }
 
 
