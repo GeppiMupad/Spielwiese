@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -19,18 +20,21 @@ public class Movement : MonoBehaviour
     [Tooltip("Acceleration for Sprinting")]
     [SerializeField] private float sprintAcceleration;
 
-    private float maxSpeed;
+    [Tooltip("Decceleration after walking / sprinting -> slowing down player")]
+    [SerializeField] private float currentDecceleration; // 20f
+
+
+    // Acceleration
+
+    private float maxSpeed;  
     private float currentAcceleration;
     private float currentSpeed = 0f;
 
+ 
+    // Slow Player Down
 
-    private float currentDecceleration = 3f;
     private float deccelerate;
-
-    private float tempDeccerlerate;
-
-
-    private Vector3 lastMove;
+    private Vector3 lastMove; 
 
     #endregion
 
@@ -81,7 +85,7 @@ public class Movement : MonoBehaviour
     private GetInput myInput;
 
 
-    private Camera myCamera;
+    private Camera myCamera; // passiert bisher nix mit
     private void Awake()
     {
         myCamera = Camera.main;
@@ -148,9 +152,9 @@ public class Movement : MonoBehaviour
         if (moveDirection.magnitude > 0)
         {
             // currentSpeed += acceleration * Time.deltaTime;
-        
+
             currentSpeed += currentAcceleration * Time.deltaTime;
-        
+
             currentSpeed = Mathf.Min(currentSpeed, maxSpeed);
         }
         else  // no vector lenght, no speed
@@ -161,29 +165,25 @@ public class Movement : MonoBehaviour
         // move into direction the camera is looking at
         moveDirection = cineMashineTransform.forward * moveDirection.z + cineMashineTransform.right * moveDirection.x;
 
-        if(moveDirection != new Vector3(0,0,0))
+        if (moveDirection != new Vector3(0, 0, 0))
         {
             deccelerate = currentSpeed;
             lastMove = moveDirection;
             lastMove = cineMashineTransform.forward * lastMove.z + cineMashineTransform.right * lastMove.x;
         }
 
-        //if(myInput.walk == new Vector2(0,0))
-        //{
-        //    myController.Move(lastMove * (currentSpeed * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
-        //}
 
-
-        // klappt noch nicht so ganz, die decceleration wird immer kleier und erschaffe so eine "negative" beschleunigung 
-
-        if(moveDirection == new Vector3(0,0,0))
+        if (moveDirection == new Vector3(0, 0, 0))
         {
+            // slow player down over time, after no move input is given
             deccelerate -= currentDecceleration * Time.deltaTime;
 
             deccelerate = Mathf.Min(deccelerate, 10);
 
-            Debug.Log(deccelerate);
-            myController.Move(lastMove * (currentSpeed - deccelerate * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+            if (deccelerate > 0)
+            {
+                myController.Move(lastMove * (currentSpeed - deccelerate * Time.deltaTime) * -1 + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+            }
         }
 
         myController.Move(moveDirection * (currentSpeed * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
@@ -194,7 +194,7 @@ public class Movement : MonoBehaviour
         }
     }
 
- 
+
     private void ShakeCamera()
     {
         // wenn player geittet wird muss camera geshaked werden
@@ -208,7 +208,7 @@ public class Movement : MonoBehaviour
     private void RotateCamera()
     {
 
-        if(this.gameObject.transform.rotation.x > -50f || this.gameObject.transform.rotation.x < 50f)
+        if (this.gameObject.transform.rotation.x > -50f || this.gameObject.transform.rotation.x < 50f)
         {
             cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
             gameObject.transform.rotation = cineMashineTransform.transform.rotation;
@@ -225,11 +225,13 @@ public class Movement : MonoBehaviour
 
     }
 
-  
+
 
     /* 
      
     - Muss noch machen, dass sobald man aufhört zu gehen man kruzen "bremsweg" hat 
+     -> Richtiung muss noch angepasst werden -> Die richtung , in die decceleratet wird ist Statisch und verändert sich nicht mit dem Kamera Movement
+     -> WEnn man Sprintet und dann deceleratet fühlt es sich noch nicht ganz so gut an
 
      - Rotaion von meinem Object Anpassen / -> Eig irrelevant sofern es Single Player ist 
         - Gucken wies bei R6 bspw ist -> nur wichtig bei Multiplayer
