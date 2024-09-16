@@ -15,7 +15,7 @@ public class Movement : MonoBehaviour
     [SerializeField] private float sprintSpeed;
 
     [Tooltip("Acceleration for walking")]
-    [SerializeField] private float normalAcceleration;
+    [SerializeField] private float walkAcceleration;
 
     [Tooltip("Acceleration for Sprinting")]
     [SerializeField] private float sprintAcceleration;
@@ -86,8 +86,9 @@ public class Movement : MonoBehaviour
 
     private GetInput myInput;
 
-
     private Camera myCamera; // passiert bisher nix mit
+
+    private bool hasSprintet = false;
     private void Awake()
     {
         myCamera = Camera.main;
@@ -143,11 +144,12 @@ public class Movement : MonoBehaviour
         {
             maxSpeed = sprintSpeed;
             currentAcceleration = sprintAcceleration;
+            hasSprintet = true;
         }
         else
         {
             maxSpeed = normalSpeed;
-            currentAcceleration = normalAcceleration;
+            currentAcceleration = walkAcceleration;
         }
 
         // Get direction the player is walking
@@ -182,23 +184,26 @@ public class Movement : MonoBehaviour
         if (moveDirection == new Vector3(0, 0, 0))
         {
             // slow player down over time, after no move input is given ( change deccleration based on speed )
-            if (maxSpeed == sprintSpeed)
+            if (maxSpeed == sprintSpeed || hasSprintet == true)
             {     
                 deccelerate -= sprintDecceleration * Time.deltaTime;
-
-                deccelerate = Mathf.Min(deccelerate, 10);
-
+   
+               // deccelerate = Mathf.Min(deccelerate, tempFloat); // überhaupt nötig ? 
             }
             else
             {
                 deccelerate -= walkDecceleration * Time.deltaTime;
 
-                deccelerate = Mathf.Min(deccelerate, 10);
+               // deccelerate = Mathf.Min(deccelerate, 10);
             }
 
             if (deccelerate > 0)
             {
                 myController.Move(lastDirection * (currentSpeed - deccelerate * Time.deltaTime) * -1 + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+            }
+            else
+            {
+                hasSprintet = false;
             }
         }
 
@@ -255,6 +260,10 @@ public class Movement : MonoBehaviour
      - Meine Kamera muss sich beim Sprinten etwas bewegen / wackeln 
 
      - Regeneration & Ausdauer ?
+     
+     - Code Ausblendungen ( // ) überarbeiten
+
+     - Variablen in einer richtigen Reihenfolge sortieren
      
      */
 }
