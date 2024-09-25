@@ -21,10 +21,10 @@ public class Movement : MonoBehaviour
     [SerializeField] private float sprintAcceleration;
 
     [Tooltip("Decceleration if player sprints")]
-    [SerializeField] private float sprintDecceleration;
+    [SerializeField] private float sprintDeceleration;
 
     [Tooltip("Decceleration if player walks")]
-    [SerializeField] private float walkDecceleration;
+    [SerializeField] private float walkDeceleration;
 
     // Acceleration
 
@@ -35,8 +35,10 @@ public class Movement : MonoBehaviour
  
     // Slow Player Down
 
-    private float deccelerate;
+    private float decelerate;
     private Vector3 lastDirection; 
+
+    private bool hasSprinted = false; // change value of Decceleration - sollte mit FSM wegfallen
 
     #endregion
 
@@ -82,13 +84,12 @@ public class Movement : MonoBehaviour
 
     #endregion
 
-    private CharacterController myController;
+    private CharacterController playerController;
 
-    private GetInput myInput;
+    private GetInput playerInput;
 
     private Camera myCamera; // passiert bisher nix mit
 
-    private bool hasSprintet = false;
     private void Awake()
     {
         myCamera = Camera.main;
@@ -96,9 +97,9 @@ public class Movement : MonoBehaviour
 
     private void Start()
     {
-        myController = GetComponent<CharacterController>();
+        playerController = GetComponent<CharacterController>();
 
-        myInput = GetComponent<GetInput>();
+        playerInput = GetComponent<GetInput>();
     }
 
     void Update()
@@ -112,12 +113,12 @@ public class Movement : MonoBehaviour
 
     private void JumpAndGravity()
     {
-        if (myController.isGrounded == true)
+        if (playerController.isGrounded == true)
         {
             hasJumped = false;
         }
 
-        if (myInput.isJumping == true && myController.isGrounded == true)
+        if (playerInput.isJumping == true && playerController.isGrounded == true)
         {
             jumpDirection.y = jumpHeight;
             hasJumped = true;
@@ -140,11 +141,11 @@ public class Movement : MonoBehaviour
     private void PlayerMovement()
     {
         // Set Speed, the player is walking with
-        if (myInput.isSprinting == true && myInput.walk.y > 0)
+        if (playerInput.isSprinting == true && playerInput.walk.y > 0)
         {
             maxSpeed = sprintSpeed;
             currentAcceleration = sprintAcceleration;
-            hasSprintet = true;
+            hasSprinted = true;
         }
         else
         {
@@ -153,7 +154,7 @@ public class Movement : MonoBehaviour
         }
 
         // Get direction the player is walking
-        Vector3 moveDirection = new Vector3(myInput.walk.x, 0.0f, myInput.walk.y).normalized;
+        Vector3 moveDirection = new Vector3(playerInput.walk.x, 0.0f, playerInput.walk.y).normalized;
 
         // Create acceleration
         if (moveDirection.magnitude > 0)
@@ -175,8 +176,9 @@ public class Movement : MonoBehaviour
             // save last direction for decceleration
         if (moveDirection != new Vector3(0, 0, 0))
         {
-            deccelerate = currentSpeed;
+            decelerate = currentSpeed;
             lastDirection = moveDirection;
+
             //lastDirection = new Vector3(0 , moveDirection.x , moveDirection.z);
             //lastMove = cineMashineTransform.forward * lastMove.z + cineMashineTransform.right * lastMove.x;
         }
@@ -184,32 +186,32 @@ public class Movement : MonoBehaviour
         if (moveDirection == new Vector3(0, 0, 0))
         {
             // slow player down over time, after no move input is given ( change deccleration based on speed )
-            if (maxSpeed == sprintSpeed || hasSprintet == true)
+            if (maxSpeed == sprintSpeed || hasSprinted == true)
             {     
-                deccelerate -= sprintDecceleration * Time.deltaTime;
+                decelerate -= sprintDeceleration * Time.deltaTime;
    
                // deccelerate = Mathf.Min(deccelerate, tempFloat); // überhaupt nötig ? 
             }
             else
             {
-                deccelerate -= walkDecceleration * Time.deltaTime;
+                decelerate -= walkDeceleration * Time.deltaTime;
 
                // deccelerate = Mathf.Min(deccelerate, 10);
             }
 
-            if (deccelerate > 0)
+            if (decelerate > 0)
             {
-                myController.Move(lastDirection * (currentSpeed - deccelerate * Time.deltaTime) * -1 + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+                playerController.Move(lastDirection * (currentSpeed - decelerate * Time.deltaTime) * -1 + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
             }
             else
             {
-                hasSprintet = false;
+                hasSprinted = false;
             }
         }
 
-        myController.Move(moveDirection * (currentSpeed * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
+        playerController.Move(moveDirection * (currentSpeed * Time.deltaTime) + new Vector3(0f, jumpDirection.y * Time.deltaTime, 0f));
 
-        if (moveDirection != new Vector3(0, 0, 0) && myInput.isSprinting == true)
+        if (moveDirection != new Vector3(0, 0, 0) && playerInput.isSprinting == true)
         {
             // The Arms of the player has to shake instead of the camera
             ShakeCamera();
@@ -232,18 +234,16 @@ public class Movement : MonoBehaviour
 
         if (this.gameObject.transform.rotation.x > -50f || this.gameObject.transform.rotation.x < 50f)
         {
-            cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
+            cineMashineTransform.transform.rotation = Quaternion.Euler(((playerInput.rotation.y / rotationSpeedY) * -1) / 2, playerInput.rotation.x / rotationSpeedX, 0);
             gameObject.transform.rotation = cineMashineTransform.transform.rotation;
         }
         else
         {
-            cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
+            cineMashineTransform.transform.rotation = Quaternion.Euler(((playerInput.rotation.y / rotationSpeedY) * -1) / 2, playerInput.rotation.x / rotationSpeedX, 0);
             gameObject.transform.rotation = cineMashineTransform.transform.rotation;
         }
 
-        // 50 x , - 50 x
-
-        // cineMashineTransform.transform.rotation = Quaternion.Euler(((myInput.rotation.y / rotationSpeedY) * -1) / 2, myInput.rotation.x / rotationSpeedX, 0);
+        // 50 x , - 50 x -> Maximale Rotations position
     }
 
 
@@ -251,6 +251,10 @@ public class Movement : MonoBehaviour
     /* 
      
     - Muss noch machen, dass sobald man aufhört zu gehen man kruzen "bremsweg" hat 
+
+    - Wenn man decceleratet : 
+
+
      -> Richtiung muss noch angepasst werden -> Die richtung , in die decceleratet wird ist Statisch und verändert sich nicht mit dem Kamera Movement
      -> WEnn man Sprintet und dann deceleratet fühlt es sich noch nicht ganz so gut an
 

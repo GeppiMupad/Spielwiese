@@ -1110,7 +1110,15 @@ PrefabInstance:
       value: 17
       objectReference: {fileID: 0}
     - target: {fileID: 5390729908744655022, guid: aee84367dc2c059439ae0ec45ba34d76, type: 3}
+      propertyPath: walkDeceleration
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5390729908744655022, guid: aee84367dc2c059439ae0ec45ba34d76, type: 3}
       propertyPath: walkDecceleration
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5390729908744655022, guid: aee84367dc2c059439ae0ec45ba34d76, type: 3}
+      propertyPath: sprintDeceleration
       value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5390729908744655022, guid: aee84367dc2c059439ae0ec45ba34d76, type: 3}
