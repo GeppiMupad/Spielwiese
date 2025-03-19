@@ -3,9 +3,6 @@ using UnityEngine;
 
 public class CurrentCanvas : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI fadeInAndOutText;
-    [SerializeField] private TextMeshProUGUI increadeAndDecreaseText;
-
     [SerializeField] private TextMeshProUGUI[] fadeInAndOutTextA;
     [SerializeField] private TextMeshProUGUI[] increadeAndDecreaseTextA;
 
@@ -22,27 +19,30 @@ public class CurrentCanvas : MonoBehaviour
 
     private void Start()
     {
-
+        StartAllCoroutines();
     }
 
-    void FixedUpdate()
+    private void OnEnable()
     {
-        //if(fadeInAndOutTextA != null)
-        //{
-        //    foreach (TextMeshProUGUI item in fadeInAndOutTextA)
-        //    {
-        //        StartCoroutine(managerComponents.canvasManager.TextFadeInAndOut(item));
-        //    }          
-        //}
-        //if(increadeAndDecreaseTextA != null)
-        //{
-        //    foreach (TextMeshProUGUI item in increadeAndDecreaseTextA)
-        //    {
-        //        StartCoroutine(managerComponents.canvasManager.TextFadeInAndOut(item));
-        //    }
-        //}   
+        StartAllCoroutines();
+    }
 
-        StartCoroutine(managerComponents.canvasManager.TextFadeInAndOut(fadeInAndOutText));
-        StartCoroutine(managerComponents.canvasManager.TextIncreaseAndDecreaseFontSize(increadeAndDecreaseText));
+    private void StartAllCoroutines()
+    {
+        if (fadeInAndOutTextA != null)
+        {
+            foreach (TextMeshProUGUI item in fadeInAndOutTextA)
+            {
+                StartCoroutine(managerComponents.canvasManager.TextFadeInAndOutOverTime(item));
+            }
+        }
+        if (increadeAndDecreaseTextA != null)
+        {
+            foreach (TextMeshProUGUI item in increadeAndDecreaseTextA)
+            {
+                StartCoroutine(managerComponents.canvasManager.TextIncreaseAndDecreaseFontSizeOverTime(item));
+                Debug.Log("is");   
+            }
+        }
     }
 }

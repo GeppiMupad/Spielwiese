@@ -447,8 +447,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6460be10ccd6e747b4a399240022dd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeInAndOutText: {fileID: 0}
-  increadeAndDecreaseText: {fileID: 0}
   fadeInAndOutTextA: []
   increadeAndDecreaseTextA: []
   managerComponents: {fileID: 0}
@@ -1216,14 +1214,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6460be10ccd6e747b4a399240022dd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeInAndOutText: {fileID: 1557230900}
-  increadeAndDecreaseText: {fileID: 1557230900}
   fadeInAndOutTextA:
   - {fileID: 1557230900}
   - {fileID: 884960138}
   increadeAndDecreaseTextA:
   - {fileID: 1557230900}
-  - {fileID: 919864272}
+  - {fileID: 884960138}
   managerComponents: {fileID: 1850360875}
 --- !u!1 &1651175464
 GameObject:
@@ -1432,8 +1428,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6460be10ccd6e747b4a399240022dd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeInAndOutText: {fileID: 0}
-  increadeAndDecreaseText: {fileID: 0}
   fadeInAndOutTextA: []
   increadeAndDecreaseTextA: []
   managerComponents: {fileID: 0}
@@ -1529,10 +1523,10 @@ MonoBehaviour:
   secondCanvas: {fileID: 919745192}
   thirdCanvas: {fileID: 1740214833}
   managerComponents: {fileID: 1850360875}
-  fadeRate: 2
-  lowestAlpha: 0.1
+  fadeRate: 0.8
+  lowestAlpha: 0.133
   highestAlpha: 1
-  fontSizeRate: 0.06
+  fontSizeRate: 3
   lowestFontSize: 25
   highestFontSize: 45
 --- !u!1 &1844281133
@@ -1615,7 +1609,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eventManager: {fileID: 1745652774}
   audioManager: {fileID: 0}
-  canvasManager: {fileID: 0}
+  canvasManager: {fileID: 1831247504}
 --- !u!1 &1863783510
 GameObject:
   m_ObjectHideFlags: 0

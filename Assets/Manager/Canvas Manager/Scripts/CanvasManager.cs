@@ -12,25 +12,28 @@ public class CanvasManager : MonoBehaviour
     [Space(10)]
     [SerializeField] private GetManagerComponents managerComponents;
 
-    // fade In & Out
 
+
+    // fade In & Out
+    [Header("FadeRate")]
     [Space(10)]
     [SerializeField] private float fadeRate;
 
     [SerializeField, Range(0.1f, 0.8f)] private float lowestAlpha;
-    [SerializeField, Range(0.4f, 1f)]   private float highestAlpha;
+    [SerializeField, Range(0.4f, 1f)] private float highestAlpha;
 
-    private bool fullAlpha = false;
 
 
     // Increase & Decrease FontSize
+    [Header("FontSize")]
+    [Space(10)]
 
     [SerializeField] private float fontSizeRate;
 
     [SerializeField] private float lowestFontSize;
     [SerializeField] private float highestFontSize;
 
-    private bool maxFontSize = false;
+
 
     private void Awake()
     {
@@ -39,7 +42,7 @@ public class CanvasManager : MonoBehaviour
         if (managerComponents == null)
         {
             managerComponents = FindAnyObjectByType<GetManagerComponents>();
-        }     
+        }
     }
 
     void Start()
@@ -49,61 +52,69 @@ public class CanvasManager : MonoBehaviour
         managerComponents.eventManager.eventOpenAudioCanvas += ManageThirdCanvas;
     }
 
-    public IEnumerator TextFadeInAndOut(TextMeshProUGUI _text)
+    public IEnumerator TextFadeInAndOutOverTime(TextMeshProUGUI _text)
     {
-        if(fullAlpha == true)
+        bool fullAlpha = false;
+
+        while (true)
         {
-            _text.alpha -= Time.deltaTime / fadeRate;
-
-            if (_text.alpha <= lowestAlpha)
+            if (fullAlpha == true)
             {
-                fullAlpha = false;
-                yield return 0;
-            }
-            yield return 0;
-        }
-       
-        if(fullAlpha == false)
-        {
-            _text.alpha += Time.deltaTime / fadeRate;
+                _text.alpha -= Time.deltaTime / fadeRate;
 
-            if (_text.alpha >= highestAlpha)
+                if (_text.alpha <= lowestAlpha)
+                {
+                    fullAlpha = false;
+                    yield return null;
+                }
+                yield return null;
+            }
+
+            if (fullAlpha == false)
             {
-                fullAlpha = true;
-                yield return 0;
-            }
-        }
+                _text.alpha += Time.deltaTime / fadeRate;
 
-        yield return 0;
+                if (_text.alpha >= highestAlpha)
+                {
+                    fullAlpha = true;
+                    yield return null;
+                }
+            }
+            yield return null;
+        }
     }
-
-    public IEnumerator TextIncreaseAndDecreaseFontSize(TextMeshProUGUI _text)
+    public IEnumerator TextIncreaseAndDecreaseFontSizeOverTime(TextMeshProUGUI _text)
     {
+        bool maxFontSize = false;
         _text.alignment = TextAlignmentOptions.Center;
-        if (maxFontSize == true)
+
+        while(true)
         {
-            _text.fontSize -= Time.deltaTime / fontSizeRate;
-
-            if (_text.fontSize <= lowestFontSize)
+            if (maxFontSize == true)
             {
-                maxFontSize = false;
-                yield return 0;
+                _text.fontSize -= ( _text.fontSize * Time.deltaTime ) / fontSizeRate;
+
+                if (_text.fontSize <= lowestFontSize)
+                {
+                    maxFontSize = false;
+                    yield return null;
+                }
+                yield return null;
             }
-            yield return 0;
-        }
 
-        if (maxFontSize == false)
-        {
-            _text.fontSize += Time.deltaTime / fontSizeRate;
-
-            if (_text.fontSize >= highestFontSize)
+            if (maxFontSize == false)
             {
-                maxFontSize = true;
-                yield return 0;
-            }
-        }
+                _text.fontSize += (_text.fontSize * Time.deltaTime) / fontSizeRate;
 
-        yield return 0;
+                if (_text.fontSize >= highestFontSize)
+                {
+                    maxFontSize = true;
+                    yield return null;
+                }
+            }
+
+            yield return null;
+        }
     }
 
     private void ManageFirstCanvas()
@@ -112,7 +123,7 @@ public class CanvasManager : MonoBehaviour
         {
             firstCanvas.SetActive(false);
         }
-        else 
+        else
         {
             secondCanvas.SetActive(false);
             thirdCanvas.SetActive(false);
@@ -126,7 +137,7 @@ public class CanvasManager : MonoBehaviour
         {
             secondCanvas.SetActive(false);
         }
-        else 
+        else
         {
             thirdCanvas.SetActive(false);
             firstCanvas.SetActive(false);
@@ -140,7 +151,7 @@ public class CanvasManager : MonoBehaviour
         {
             thirdCanvas.SetActive(false);
         }
-        else 
+        else
         {
             secondCanvas.SetActive(false);
             firstCanvas.SetActive(false);
